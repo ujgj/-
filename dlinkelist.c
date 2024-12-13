@@ -44,7 +44,7 @@ line * line_init(line * head){
     return head;
 }
 
-//插入数据(在n出插入data)
+//插入数据(在n处插入data)
 line * line_insert(line * head, int data, int n){
     line * temp = (line*)malloc(sizeof(line));
     temp->data = data;
@@ -73,6 +73,7 @@ line * line_insert(line * head, int data, int n){
         }
     }
     head->data ++;  
+    return head;
 }
 
 //删除元素
