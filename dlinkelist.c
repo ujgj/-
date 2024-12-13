@@ -1,114 +1,106 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef int ElemType;
 //定义结构体
-typedef struct dlinknode
+typedef struct line
 {
-    ElemType data;
-    struct dlinknode *pre;
-    struct dlinknode *next;
-} Dlinknode;
+    int data;
+    struct line *pre;   //前驱节点
+    struct line *next;  //后继节点
+}line;
 
-typedef Dlinknode* Dlinklist;
-
-//初始化链表
-Dlinklist list_init(){
-    Dlinklist list = (Dlinklist)malloc(sizeof(Dlinknode));
-    list->pre = NULL;
-    list->next = NULL;
-    list->data = -1;        //-1表示无效数据
-    return list;
-}
-
-//插入数据
-int list_insert(Dlinklist list, int data, int n){
-    if (list == NULL || n < 1) return -1;
-
-    Dlinknode* cur = list;
-    int i = 0;
-    while (cur && i < (n - 1))
+//打印
+void line_print(line *head){
+    line *list = head;
+    while (list)
     {
-        cur = cur->next;
-        i ++;
-    }
-    if (!cur) return -1;
-
-    Dlinknode* new = (Dlinknode*)malloc(sizeof(Dlinknode));
-    new->data = data;
-    new->pre = cur;
-    new->next = cur->next;
-    if (cur->next) cur->next->pre = new;
-    cur->next = new;
-    return 0 ;
+        printf("%d", list->data);
+        list = list->next;
+    }   
 }
 
-//删除数据
-int list_delete(Dlinklist list, int *data, int n){
-    if (list == NULL || data == NULL || n < 1) return -1;
+//创建
+line * line_init(line * head){
+    int num, pos = 1, data;
+    head = (line *)malloc(sizeof(line));
+    head->pre = NULL;
+    head->next = NULL;
+    head->data = 0;     //头节点，数据域存贮链表长度（元素个数）
 
-    Dlinknode* cur = list;
-    int i = 0;
-    while (cur->next && i < (n - 1))
+    line* list = head;
+    printf("输入数据:");
+    while (scanf("%d", &data) != EOF)
     {
-        cur = cur->next;
-        i ++;
-    }
-    if (!cur->next) return -1;
+        line * node = (line*)malloc(sizeof(line));
+        node->pre = NULL;
+        node->next = NULL;
+        node->data = data;
 
-    Dlinknode *delete = cur->next;
-    *data = delete->data;
-    delete->pre->next = delete->next;
-    if (delete->next) delete->next->pre = delete->pre;
-    free(delete);   //释放空间资源
-    return 0 ;
+        list->next = node;
+        node->pre = list;
+        list = list->next;
+        head->data +=1;
+    }
+    return head;
 }
 
-//查找数据
-int list_search(Dlinklist list, int *data, int n){
-    if (list == NULL || data == NULL || n < 1) return -1;
+//插入数据(在n出插入data)
+line * line_insert(line * head, int data, int n){
+    line * temp = (line*)malloc(sizeof(line));
+    temp->data = data;
+    temp->pre = NULL;
+    temp->next = NULL;
 
-    Dlinknode* cur = list;
-    int i = 0;
-    while (cur && i < n)
+//分情况（位置）考虑
+    if(n == 1){
+        temp->next = head->next;
+        temp->pre = head;
+        head->next = temp;
+        head->data ++;
+    }else{
+        line * body = head;
+        for (int i = 1; i < n-1; i++){
+            body = body->next;
+        }
+        if (body->next == NULL){
+            body->next = temp;
+            temp->pre = body;
+        }else{
+            body->next->pre = temp;
+            temp->next = body->next;
+            body->next = temp;
+            temp->pre = body;
+        }
+    }
+    head->data ++;  
+}
+
+//删除元素
+line * lin_delete(line * head, int data){
+    line * list = head;
+    while (list)
     {
-        cur = cur->next;
-        i ++;
+        if(list->data == data){
+            list->pre->next = list->next;
+            list->next->pre = list->pre;
+            free(list);
+            printf("删除成功\n");
+            return head;
+        }
+        list = list->next;
     }
-    if (!cur) return -1;
-
-    *data = cur->data;
-    return 0;
-}
-
-//打印链表
-void list_print(Dlinklist list){
-    Dlinknode* cur = list;
-    while (!cur->next)
-    {
-        printf("%d->", cur->data);
-        cur = cur->next;
-    }
-}
-
-//销毁链表
-void list_destroy(Dlinklist list){
-    Dlinknode* cur = list->next;
-    Dlinknode* next = NULL;
-    while(cur){
-        next = cur->next;
-        free(cur);
-        cur = next;
-    }
-    list->pre = NULL;
-    list->next = NULL;
+    printf("元素不存在\n");
+    return head;
 }
 
 //实现
 int main(){
-    Dlinklist list = NULL;
-    list = list_init();
-    list_insert(list, 1, 1);
-//    list_print(list);
-    return 0;
+    line *head=NULL;
+    head = line_init(head);
+/*
+*插入
+*删除
+*打印
+*/
+    return 0 ;
 }
