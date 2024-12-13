@@ -1,88 +1,151 @@
 #include <stdio.h>
 #include <stdlib.h>
 //单链表
-#define MAXLENGTH      100
 
-//节点结构体
-struct Node{
+//定义结构体
+typedef struct Node
+{
     int data;
-    struct Node* next;
-};
+    struct Node *next;
+} Node, *linklist;
 
-//创建新节点
-struct  Node* Node_create(int data){
-    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
-    newNode ->data = data;
-    newNode ->next = NULL;
-    return newNode;
-};
-
-//首部插入
-void insert_head(struct Node** head, int data){
-    struct Node* newNode = Node_create(data);
-    newNode ->next = *head;
-    *head = newNode;
+//初始化链表
+linklist list_init(){
+    Node *L;
+    L = (Node*)malloc(sizeof(Node));
+    if (L == NULL){
+        printf("申请空间失败");
+        exit(0);
+    }
+    L->next = NULL;
 }
 
-//尾部插入
-void insert_tail(struct Node* head, int data){
-    struct Node* newNode = Node_create(data);
-    while (1)
+//头部插入创建
+linklist list_chead(){
+    Node *L;
+    L = (Node *)malloc(sizeof(Node));
+    L->next = NULL;
+
+    int data;
+    while (scanf("%d", &data) != EOF)
     {
-        if (head ->next == NULL){
-            head ->next = newNode;
-            break;
-        }
-        head = head ->next;
-    }   
+        Node *p;
+        p = (Node *)malloc(sizeof(Node));
+        p->data = data;
+        p->next = L->next;
+        L->next = p;
+    }
+    return L;
 }
 
-//中部插入(指定第n个位置)
-void insert_between(struct Node* head, int data, int n){
-    struct Node* newNode = Node_create(data);
-    int length = 1;
-    while(head ->next != NULL){
-        length += 1;
-        head = head ->next;
+
+//尾插法创建
+linklist list_ctail(){
+    Node *L;
+    L = (Node *)malloc(sizeof(Node));
+    L->next = NULL;
+    Node *r;
+    r = L;
+    int data;
+    while (scanf("%d", &data) != EOF)
+    {
+        Node *p;
+        p = (Node *)malloc(sizeof(Node));
+        p->data = data;
+        r->next = p;
+        r = p;
     }
-    int i = 1;
-    while(1){
-        if (n == 1){
-            insert_head(&head, data);
-            break;
-        }
-        else if (n ==length){
-            insert_tail(head, data);
-            break;
-        }
-        if (i == n-1){
-            struct Node* temp = head ->next ->next;
-            head ->next = newNode;
-            newNode ->next = temp;
-            break;
-        }
-        head = head ->next;
-        i ++;
+    r->next = NULL;
+
+    return L;
+}
+
+//数据插入（指定第n个位置）
+linklist list_insert(linklist L, int n, int data){
+    Node *pre;
+    pre = L;
+    int i = 0;
+    for (i = 1; i < n; i++){
+        pre = pre->next;
     }
+    Node *p;
+    p = (Node*)malloc(sizeof(Node));
+    p->data = data;
+    p->next = pre->next;
+    pre->next = p;
+    return L;
+}
+
+//链表指定删除data元素
+linklist list_delete(linklist L, int data){
+    Node *p,*pre;
+    p = L->next;
+    
+    while (p->data != data)
+    {
+        pre = p;
+        p = p->next;
+    }
+    pre->next = p->next;
+    free(p);
+    return L;
+}
+
+//修改链表元素(data->data1)
+linklist list_alter(linklist L, int data, int data1){
+    Node *p = L->next;
+    int i = 0;
+    while (p)
+    {
+        if (p->data == data){
+            p->data = data1;
+        }
+        p = p->next;
+    }
+    return L;    
 }
 
 //打印链表
-void printlist(struct Node* head){
-    struct Node* temp = head;
-    while(temp != NULL){
-        printf("%d ->",temp ->data);
-        temp = temp ->next;
+void list_print(linklist L){
+    Node *p = L->next;
+    while (p)
+    {
+        printf("%d ->", p->data);
+        p = p->next;
     }
-    printf("NULL\n");
 }
 
-//运行实现
+//实现
 int main(){
-    struct Node* head = NULL;
-    insert_head(&head, 1);
-    insert_head(&head, 2);
-    insert_head(&head, 3);
-    insert_tail(head, 4);
-    printlist(head);
-    return 0 ;
+    //创建
+    linklist list;
+    printf("输入数据,EOF为结尾");
+    list = list_ctail();
+    list_print(list);
+
+    //插入
+    int n;
+    int data;
+    printf("输入位置:");
+    scanf("%d", &n);
+    printf("输入数据:");
+    scanf("%d", &data);
+    list_insert(list, n, data);
+    list_print(list);
+
+    //修改
+    printf("需修改的数据:");
+    scanf("%d", &n);
+    printf("替换数据:");
+    scanf("%d", &data);
+    list_alter(list, n, data);
+    list_print(list);
+
+    //删除
+    printf("需删除的数据:");
+    scanf("%d", &data);
+    list_delete(list, data);
+    list_print(list);
+
+    return 0;
 }
