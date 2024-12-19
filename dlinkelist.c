@@ -72,8 +72,8 @@ line * line_insert(line * head, int data, int n){
             temp->pre = body;
         }
     }
-    head->data ++;  
-    return head;
+    head->data ++;
+    return head;  
 }
 
 //删除元素
